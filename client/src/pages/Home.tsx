@@ -263,13 +263,13 @@ export default function Home() {
           <div className="flex items-center space-x-4">
             {/* Bot Switcher */}
             <div className="flex items-center space-x-2">
-              <span className="text-sm">Active Bot:</span>
+              <span className="text-sm text-white font-medium">Active Bot:</span>
               <Button 
-                variant="secondary"
+                variant="outline"
                 size="sm"
                 onClick={handleSwitchBot}
                 disabled={switchBotMutation.isPending}
-                className="flex items-center space-x-1 text-white"
+                className="flex items-center space-x-1 bg-white text-primary-700 border-white hover:bg-gray-100 hover:text-primary-800"
               >
                 <span>{activeBot?.activeBot || 'Bot1'}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1">
@@ -279,10 +279,10 @@ export default function Home() {
             </div>
             
             {/* Connection Status */}
-            <div id="connectionStatus" className={`flex items-center px-3 py-1 rounded-full ${botStatus?.connected ? 'bg-secondary-600' : 'bg-danger-600'} text-white text-sm`}>
+            <div id="connectionStatus" className={`flex items-center px-3 py-1 rounded-full ${botStatus?.connected ? 'bg-green-600' : 'bg-red-600'} text-white text-sm shadow-sm`}>
               <span className="relative flex h-3 w-3 mr-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                <span className={`relative inline-flex rounded-full h-3 w-3 ${botStatus?.connected ? 'bg-green-400' : 'bg-white'}`}></span>
+                <span className={`relative inline-flex rounded-full h-3 w-3 ${botStatus?.connected ? 'bg-green-300' : 'bg-white'}`}></span>
               </span>
               {botStatus?.connected ? 'Connected' : 'Disconnected'}
             </div>
