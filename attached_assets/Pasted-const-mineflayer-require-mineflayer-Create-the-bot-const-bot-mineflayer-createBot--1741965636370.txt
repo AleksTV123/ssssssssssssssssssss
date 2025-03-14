@@ -1,0 +1,72 @@
+const mineflayer = require('mineflayer');
+
+// Create the bot
+const bot = mineflayer.createBot({
+  host: 'pieseczkowomc2016.icsv.pl',   // Replace with the IP address or domain of the Minecraft server you want to join
+  port: 25565,         // Default port is 25565
+  username: 'wiktorkochel1',  // Your bot's username
+  version: '1.21',     // Specify the Minecraft version you want to use
+});
+
+// Bot event listener for when the bot spawns
+bot.on('spawn', () => {
+  console.log('Bot has spawned!');
+  bot.chat('/login haslo123')
+  
+  // Start the main interval to swing every 10 seconds (simulate sweep attack)
+  setInterval(() => {
+    performSweepAttack();
+  }, 1000); // 10 seconds
+});
+setInterval(() => {
+  bot.chat('/repair all');
+  console.log('replaired ')
+}, 10000); // 10 seconds
+
+// Function to perform the sweep attack
+async function performSweepAttack() {
+  // Get the entities around the bot
+  const entities = bot.entities;
+
+  // Find the closest armor stand (or any entity) in front of the bot
+  let target = null;
+  for (const entityId in entities) {
+    const entity = entities[entityId];
+    
+    // Check if the entity is an armor stand or another target
+    if (entity.name === 'armor_stand') {
+      target = entity;
+      break;
+    }
+  }
+
+  if (target) {
+    // Make the bot look at the target (armor stand or any entity in front of it)
+
+    // Make the bot swing its arm (simulate a sword swing)
+    bot.attack(target)
+    console.log('Bot performed a sweep attack on the armor stand.');
+
+    // Optional: Send a repair command after the attack
+
+  } else {
+    console.log('No armor stand found in front of the bot.');
+  }
+}
+
+// Bot event listener for errors
+bot.on('error', (err) => {
+  console.log('An error occurred:', err);
+});
+
+// Bot event listener for when the bot disconnects
+bot.on('end', () => {
+  console.log('Bot has disconnected from the server.');
+});
+
+// Listen for the kicked event to check if the bot was kicked by the server
+bot.on('kicked', (reason) => {
+  console.log('Bot was kicked from the server:', reason);
+});
+
+
