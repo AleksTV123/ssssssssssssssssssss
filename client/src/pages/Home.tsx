@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { BotConfig, BotStatus, BotType } from "@shared/schema";
 import { setupWebSocket, closeWebSocket } from "@/lib/websocket";
 import StatusCards from "@/components/StatusCards";
@@ -108,6 +108,29 @@ export default function Home() {
       });
     }
   });
+  
+  // Switch bot mutation
+  const switchBotMutation = useMutation({
+    mutationFn: async (botType: BotType) => {
+      return apiRequest('POST', '/api/bot/switch', { botType });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/bot/active'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/bot/config'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/bot/status'] });
+      toast({
+        title: "Success",
+        description: "Bot switched successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to switch bot: ${error}`,
+        variant: "destructive"
+      });
+    }
+  });
 
   // Initialize WebSocket connection
   useEffect(() => {
@@ -124,8 +147,14 @@ export default function Home() {
     };
 
     const handleEvent = (eventData: any) => {
+      // Ensure event has a unique ID by combining timestamp and a random string
+      const uniqueEvent = {
+        ...eventData,
+        id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+      };
+      
       setEvents(prev => {
-        const newEvents = [...prev, eventData];
+        const newEvents = [...prev, uniqueEvent];
         // Limit to last 10 events
         if (newEvents.length > 10) {
           return newEvents.slice(newEvents.length - 10);
@@ -205,6 +234,13 @@ export default function Home() {
   const handleSaveConfig = (config: BotConfig) => {
     saveConfigMutation.mutate(config);
   };
+  
+  // Handle bot switch
+  const handleSwitchBot = () => {
+    // Switch to the other bot type
+    const newBotType: BotType = activeBot?.activeBot === 'Bot1' ? 'Bot2' : 'Bot1';
+    switchBotMutation.mutate(newBotType);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -223,13 +259,33 @@ export default function Home() {
             <h1 className="text-xl font-semibold">Mineflayer Bot 24/7 Dashboard</h1>
           </div>
           
-          {/* Connection Status */}
-          <div id="connectionStatus" className={`flex items-center px-3 py-1 rounded-full ${botStatus?.connected ? 'bg-secondary-600' : 'bg-danger-600'} text-white text-sm`}>
-            <span className="relative flex h-3 w-3 mr-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-              <span className={`relative inline-flex rounded-full h-3 w-3 ${botStatus?.connected ? 'bg-green-400' : 'bg-white'}`}></span>
-            </span>
-            {botStatus?.connected ? 'Connected' : 'Disconnected'}
+          {/* Active Bot & Connection Status */}
+          <div className="flex items-center space-x-4">
+            {/* Bot Switcher */}
+            <div className="flex items-center space-x-2">
+              <span className="text-sm">Active Bot:</span>
+              <Button 
+                variant="secondary"
+                size="sm"
+                onClick={handleSwitchBot}
+                disabled={switchBotMutation.isPending}
+                className="flex items-center space-x-1 text-white"
+              >
+                <span>{activeBot?.activeBot || 'Bot1'}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1">
+                  <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path>
+                </svg>
+              </Button>
+            </div>
+            
+            {/* Connection Status */}
+            <div id="connectionStatus" className={`flex items-center px-3 py-1 rounded-full ${botStatus?.connected ? 'bg-secondary-600' : 'bg-danger-600'} text-white text-sm`}>
+              <span className="relative flex h-3 w-3 mr-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                <span className={`relative inline-flex rounded-full h-3 w-3 ${botStatus?.connected ? 'bg-green-400' : 'bg-white'}`}></span>
+              </span>
+              {botStatus?.connected ? 'Connected' : 'Disconnected'}
+            </div>
           </div>
         </div>
       </header>
