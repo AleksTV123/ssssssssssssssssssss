@@ -10,9 +10,10 @@ interface ConsoleOutputProps {
   consoleMessages: ConsoleMessage[];
   onClearConsole: () => void;
   onDownloadLogs: () => void;
+  activeBot?: string;
 }
 
-export default function ConsoleOutput({ consoleMessages, onClearConsole, onDownloadLogs }: ConsoleOutputProps) {
+export default function ConsoleOutput({ consoleMessages, onClearConsole, onDownloadLogs, activeBot = 'Bot1' }: ConsoleOutputProps) {
   const consoleRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new messages are added
@@ -37,18 +38,39 @@ export default function ConsoleOutput({ consoleMessages, onClearConsole, onDownl
     }
   };
 
+  // Define different console styles based on the active bot
+  const getConsoleStyles = () => {
+    if (activeBot === 'Bot2') {
+      return {
+        header: 'bg-blue-800',
+        headerText: 'Bot2 Console',
+        background: 'bg-blue-950',
+        hoverButton: 'hover:bg-blue-700'
+      };
+    }
+    
+    return {
+      header: 'bg-green-800',
+      headerText: 'Bot1 Console',
+      background: 'bg-neutral-900',
+      hoverButton: 'hover:bg-green-700'
+    };
+  };
+  
+  const styles = getConsoleStyles();
+
   return (
     <section className="bg-white rounded-lg shadow-md overflow-hidden">
-      <div className="px-5 py-3 bg-neutral-800 flex items-center justify-between">
+      <div className={`px-5 py-3 ${styles.header} flex items-center justify-between`}>
         <h2 className="text-lg font-semibold text-white flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
           </svg>
-          Console Output
+          {styles.headerText}
         </h2>
         <div className="flex space-x-2">
           <button 
-            className="p-1 rounded hover:bg-neutral-700 text-neutral-400 hover:text-white transition" 
+            className={`p-1 rounded ${styles.hoverButton} text-neutral-100 hover:text-white transition`}
             title="Clear Console"
             onClick={onClearConsole}
           >
@@ -57,7 +79,7 @@ export default function ConsoleOutput({ consoleMessages, onClearConsole, onDownl
             </svg>
           </button>
           <button 
-            className="p-1 rounded hover:bg-neutral-700 text-neutral-400 hover:text-white transition" 
+            className={`p-1 rounded ${styles.hoverButton} text-neutral-100 hover:text-white transition`}
             title="Download Logs"
             onClick={onDownloadLogs}
           >
@@ -69,7 +91,7 @@ export default function ConsoleOutput({ consoleMessages, onClearConsole, onDownl
       </div>
       <div 
         ref={consoleRef}
-        className="h-96 overflow-y-auto bg-neutral-900 font-mono text-sm p-4 text-neutral-100"
+        className={`h-96 overflow-y-auto ${styles.background} font-mono text-sm p-4 text-neutral-100`}
       >
         {consoleMessages.map((message, index) => (
           <div key={index} className={getMessageClass(message.type)}>
