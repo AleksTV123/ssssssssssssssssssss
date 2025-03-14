@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { BotConfig, BotStatus } from "@shared/schema";
+import { BotConfig, BotStatus, BotType } from "@shared/schema";
 import { setupWebSocket, closeWebSocket } from "@/lib/websocket";
 import StatusCards from "@/components/StatusCards";
 import BotControls from "@/components/BotControls";
 import BotConfiguration from "@/components/BotConfiguration";
 import ConsoleOutput from "@/components/ConsoleOutput";
 import EventsAndStats from "@/components/EventsAndStats";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const { toast } = useToast();
@@ -24,6 +25,11 @@ export default function Home() {
   // Get bot configuration
   const { data: botConfig } = useQuery<BotConfig>({
     queryKey: ['/api/bot/config'],
+  });
+  
+  // Get active bot
+  const { data: activeBot } = useQuery<{activeBot: BotType}>({
+    queryKey: ['/api/bot/active'],
   });
   
   // Connect/Disconnect mutation

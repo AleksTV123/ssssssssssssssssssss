@@ -3,7 +3,16 @@ import { createServer, type Server } from "http";
 import { z } from "zod";
 import { setupWebSocketServer } from "./websocketHandler";
 import { minecraftBot } from "./bot";
-import { botConfigSchema } from "@shared/schema";
+import { minecraft2Bot } from "./bot2";
+import { botConfigSchema, botTypeSchema } from "@shared/schema";
+
+// Track which bot is currently active, export for websocket handler
+export let activeBotType: "Bot1" | "Bot2" = "Bot1";
+
+// Helper function to get the active bot
+const getActiveBot = () => {
+  return activeBotType === "Bot1" ? minecraftBot : minecraft2Bot;
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
@@ -11,15 +20,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup WebSocket server
   setupWebSocketServer(httpServer);
 
+  // Get active bot type endpoint
+  app.get('/api/bot/active', (req, res) => {
+    res.json({ activeBot: activeBotType });
+  });
+
+  // Switch active bot endpoint
+  app.post('/api/bot/switch', (req, res) => {
+    try {
+      const { botType } = z.object({
+        botType: botTypeSchema
+      }).parse(req.body);
+      
+      activeBotType = botType;
+      res.json({ success: true, activeBot: activeBotType });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: error.errors });
+      } else {
+        res.status(500).json({ error: 'Failed to switch bot' });
+      }
+    }
+  });
+
   // Bot status endpoint
   app.get('/api/bot/status', (req, res) => {
-    const status = minecraftBot.getStatus();
+    const status = getActiveBot().getStatus();
     res.json(status);
   });
 
   // Bot configuration endpoint - GET
   app.get('/api/bot/config', (req, res) => {
-    const config = minecraftBot.getConfig();
+    const config = getActiveBot().getConfig();
     // Don't send password in the response for security
     const safeConfig = { ...config, password: '' };
     res.json(safeConfig);
@@ -29,7 +61,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/bot/config', (req, res) => {
     try {
       const config = botConfigSchema.parse(req.body);
-      minecraftBot.setConfig(config);
+      getActiveBot().setConfig(config);
       res.json({ success: true });
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -42,7 +74,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Connect bot endpoint
   app.post('/api/bot/connect', (req, res) => {
-    const success = minecraftBot.start();
+    const success = getActiveBot().start();
     if (success) {
       res.json({ success: true });
     } else {
@@ -52,7 +84,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Disconnect bot endpoint
   app.post('/api/bot/disconnect', (req, res) => {
-    const success = minecraftBot.stop();
+    const success = getActiveBot().stop();
     if (success) {
       res.json({ success: true });
     } else {
@@ -62,7 +94,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Restart bot endpoint
   app.post('/api/bot/restart', (req, res) => {
-    const success = minecraftBot.restart();
+    const success = getActiveBot().restart();
     if (success) {
       res.json({ success: true });
     } else {
@@ -78,7 +110,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     try {
       const { command } = commandSchema.parse(req.body);
-      const success = minecraftBot.sendCommand(command);
+      const success = getActiveBot().sendCommand(command);
       if (success) {
         res.json({ success: true });
       } else {

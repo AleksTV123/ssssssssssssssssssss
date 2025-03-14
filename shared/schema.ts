@@ -28,6 +28,10 @@ export const botConfigSchema = z.object({
 
 export type BotConfig = z.infer<typeof botConfigSchema>;
 
+// Bot type enum
+export const botTypeSchema = z.enum(["Bot1", "Bot2"]);
+export type BotType = z.infer<typeof botTypeSchema>;
+
 // Bot status schema
 export const botStatusSchema = z.object({
   connected: z.boolean(),

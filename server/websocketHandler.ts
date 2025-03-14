@@ -1,6 +1,8 @@
 import { Server } from 'http';
 import { WebSocket, WebSocketServer } from 'ws';
 import { minecraftBot } from './bot';
+import { minecraft2Bot } from './bot2';
+import { activeBotType } from './routes';
 
 export function setupWebSocketServer(server: Server): WebSocketServer {
   const wss = new WebSocketServer({ server, path: '/ws' });
@@ -8,13 +10,15 @@ export function setupWebSocketServer(server: Server): WebSocketServer {
   wss.on('connection', (ws: WebSocket) => {
     console.log('Client connected to WebSocket');
     
-    // Add this client to the bot's broadcast list
+    // Add this client to both bots' broadcast list
     minecraftBot.addClient(ws);
+    minecraft2Bot.addClient(ws);
 
     // Handle client disconnection
     ws.on('close', () => {
       console.log('Client disconnected from WebSocket');
       minecraftBot.removeClient(ws);
+      minecraft2Bot.removeClient(ws);
     });
 
     // Handle client messages
