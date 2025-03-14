@@ -102,6 +102,9 @@ class MinecraftBot {
     }
   }
 
+  // Flag to track if disconnect was manual
+  private manualDisconnect: boolean = false;
+
   // Stop the bot
   public stop(): boolean {
     if (!this.bot) {
@@ -111,6 +114,7 @@ class MinecraftBot {
 
     try {
       this.log('Disconnecting bot', 'system');
+      this.manualDisconnect = true; // Mark as manual disconnect
       this.clearIntervals();
       this.bot.quit();
       this.bot = null;
@@ -173,7 +177,7 @@ class MinecraftBot {
       this.log('Bot has spawned!');
       
       // Send login command if password is configured
-      if (this.config.password) {
+      if (this.config.password && this.bot) {
         this.log(`Sending login command: /login ${this.config.password.replace(/./g, '*')}`, 'warning');
         this.bot.chat(`/login ${this.config.password}`);
       }
@@ -274,6 +278,13 @@ class MinecraftBot {
 
   // Attempt to reconnect to the server
   private attemptReconnect(): void {
+    // Skip reconnect if manual disconnect was requested
+    if (this.manualDisconnect) {
+      this.log('Manual disconnect detected - not attempting reconnection.', 'system');
+      this.manualDisconnect = false; // Reset for future use
+      return;
+    }
+    
     if (this.reconnectInterval) {
       clearInterval(this.reconnectInterval);
     }

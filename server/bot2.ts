@@ -100,6 +100,9 @@ class Minecraft2Bot {
     }
   }
 
+  // Flag to track if disconnect was manual
+  private manualDisconnect: boolean = false;
+
   // Stop the bot
   public stop(): boolean {
     if (!this.bot) {
@@ -109,6 +112,7 @@ class Minecraft2Bot {
 
     try {
       this.log('Disconnecting bot', 'system');
+      this.manualDisconnect = true; // Mark as manual disconnect
       this.bot.quit();
       this.bot = null;
       this.status.connected = false;

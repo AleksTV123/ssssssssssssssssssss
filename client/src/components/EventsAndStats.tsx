@@ -17,12 +17,12 @@ export default function EventsAndStats({ events, activeBot = 'Bot1' }: EventsAnd
   const getHeaderStyles = () => {
     if (activeBot === 'Bot2') {
       return {
-        headerClass: 'border-b-blue-600',
+        headerClass: 'border-b-blue-600 text-black',
         headerText: 'Bot2 Events'
       };
     }
     return {
-      headerClass: 'border-b-green-600',
+      headerClass: 'border-b-green-600 text-black',
       headerText: 'Bot1 Events'
     };
   };
