@@ -296,7 +296,10 @@ export default function Home() {
           {/* Left Column - Stats and Controls */}
           <div className="md:col-span-4 space-y-6">
             {/* Status Cards */}
-            <StatusCards status={botStatus} />
+            <StatusCards 
+              status={botStatus} 
+              activeBot={activeBot?.activeBot}
+            />
             
             {/* Control Panel */}
             <BotControls 
@@ -307,6 +310,7 @@ export default function Home() {
               customCommand={customCommand}
               setCustomCommand={setCustomCommand}
               isPending={connectMutation.isPending || restartMutation.isPending || sendCommandMutation.isPending}
+              activeBot={activeBot?.activeBot}
             />
             
             {/* Configuration */}

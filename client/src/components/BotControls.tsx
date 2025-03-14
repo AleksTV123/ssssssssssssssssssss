@@ -9,6 +9,7 @@ interface BotControlsProps {
   customCommand: string;
   setCustomCommand: (command: string) => void;
   isPending: boolean;
+  activeBot?: string;
 }
 
 export default function BotControls({ 
@@ -18,16 +19,36 @@ export default function BotControls({
   onSendCommand,
   customCommand,
   setCustomCommand,
-  isPending
+  isPending,
+  activeBot = 'Bot1'
 }: BotControlsProps) {
+  // Determine the right styles based on active bot
+  const getHeaderStyles = () => {
+    if (activeBot === 'Bot2') {
+      return {
+        headerClass: 'border-b-blue-600',
+        headerText: 'Bot2 Controls'
+      };
+    }
+    return {
+      headerClass: 'border-b-green-600',
+      headerText: 'Bot1 Controls'
+    };
+  };
+
+  const styles = getHeaderStyles();
+
   return (
     <section className="bg-white rounded-lg shadow-md p-5 space-y-4">
-      <h2 className="text-lg font-semibold text-neutral-800 border-b pb-2">Bot Controls</h2>
+      <h2 className={`text-lg font-semibold text-neutral-800 border-b pb-2 ${styles.headerClass}`}>
+        {styles.headerText}
+      </h2>
       
       <div className="space-y-4">
         {/* Connect/Disconnect Button */}
         <Button 
           className="w-full flex justify-center items-center"
+          variant={activeBot === 'Bot2' ? 'secondary' : 'default'}
           onClick={onToggleConnection}
           disabled={isPending}
         >
@@ -40,7 +61,7 @@ export default function BotControls({
         {/* Restart Bot Button */}
         <Button 
           className="w-full flex justify-center items-center"
-          variant="warning"
+          variant={activeBot === 'Bot2' ? 'destructive' : 'secondary'}
           onClick={onRestartBot}
           disabled={isPending}
         >
@@ -73,6 +94,7 @@ export default function BotControls({
               onClick={onSendCommand} 
               disabled={isPending || !connected || !customCommand.trim()}
               size="sm"
+              variant={activeBot === 'Bot2' ? 'secondary' : 'default'}
             >
               Send
             </Button>

@@ -7,9 +7,10 @@ interface BotConfigurationProps {
   config: BotConfig | undefined;
   onSaveConfig: (config: BotConfig) => void;
   isPending: boolean;
+  activeBot?: string;
 }
 
-export default function BotConfiguration({ config, onSaveConfig, isPending }: BotConfigurationProps) {
+export default function BotConfiguration({ config, onSaveConfig, isPending, activeBot = 'Bot1' }: BotConfigurationProps) {
   const [formState, setFormState] = useState<BotConfig>({
     host: "",
     port: 25565,
