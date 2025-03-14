@@ -39,9 +39,27 @@ export default function BotConfiguration({ config, onSaveConfig, isPending, acti
     onSaveConfig(formState);
   };
 
+  // Determine the right styles based on active bot
+  const getHeaderStyles = () => {
+    if (activeBot === 'Bot2') {
+      return {
+        headerClass: 'border-b-blue-600',
+        headerText: 'Bot2 Configuration'
+      };
+    }
+    return {
+      headerClass: 'border-b-green-600',
+      headerText: 'Bot1 Configuration'
+    };
+  };
+
+  const styles = getHeaderStyles();
+
   return (
     <section className="bg-white rounded-lg shadow-md p-5">
-      <h2 className="text-lg font-semibold text-neutral-800 border-b pb-2">Bot Configuration</h2>
+      <h2 className={`text-lg font-semibold text-neutral-800 border-b pb-2 ${styles.headerClass}`}>
+        {styles.headerText}
+      </h2>
       <form onSubmit={handleSubmit} className="mt-4 space-y-4">
         <div className="space-y-2">
           <label htmlFor="host" className="block text-sm font-medium text-neutral-700">Server Host</label>
@@ -109,6 +127,7 @@ export default function BotConfiguration({ config, onSaveConfig, isPending, acti
             type="submit" 
             className="inline-flex items-center px-4 py-2"
             disabled={isPending}
+            variant={activeBot === 'Bot2' ? 'secondary' : 'default'}
           >
             Save Configuration
           </Button>

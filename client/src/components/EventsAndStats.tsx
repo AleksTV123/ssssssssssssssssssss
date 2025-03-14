@@ -9,12 +9,31 @@ interface EventProps {
 
 interface EventsAndStatsProps {
   events: EventProps[];
+  activeBot?: string;
 }
 
-export default function EventsAndStats({ events }: EventsAndStatsProps) {
+export default function EventsAndStats({ events, activeBot = 'Bot1' }: EventsAndStatsProps) {
+  // Determine the right styles based on active bot
+  const getHeaderStyles = () => {
+    if (activeBot === 'Bot2') {
+      return {
+        headerClass: 'border-b-blue-600',
+        headerText: 'Bot2 Events'
+      };
+    }
+    return {
+      headerClass: 'border-b-green-600',
+      headerText: 'Bot1 Events'
+    };
+  };
+
+  const styles = getHeaderStyles();
+
   return (
     <section className="bg-white rounded-lg shadow-md p-5">
-      <h2 className="text-lg font-semibold text-neutral-800 border-b pb-2 mb-4">Bot Events</h2>
+      <h2 className={`text-lg font-semibold text-neutral-800 border-b pb-2 mb-4 ${styles.headerClass}`}>
+        {styles.headerText}
+      </h2>
       
       <div>
         <div className="space-y-3">
