@@ -54,10 +54,11 @@ app.use((req, res, next) => {
   }
 
   // 📌 ✅ Poprawiony port dla Railway
-  const PORT = process.env.PORT || 5000;
+ const PORT = process.env.PORT || 5000;  // Używa portu z Railway (lub 5000 jeśli brak)
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+
 
   log(`serving on port ${PORT}`);
 })();
