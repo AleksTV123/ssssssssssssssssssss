@@ -54,7 +54,8 @@ app.use((req, res, next) => {
   }
 
   // 📌 ✅ Poprawiony port dla Railway
-const PORT = process.env.PORT || 5000;  // Używamy dynamicznego portu z Railway, jeśli nie ma, używamy 5000
+const PORT = 8080;  // Hardcode port 8080
+
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
